@@ -10,3 +10,8 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+#config
+config.json
+instantclient_12_1
+instantclient_12_1.tar.gz
