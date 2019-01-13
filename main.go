@@ -1,3 +1,8 @@
+/*
+This application need to implement this kind of topology:
+routine1: read the file, get the number send --> chanel --> routine2: insert into database
+--> channel --> routine3: write to successfull log or error log and prepare status
+*/
 package main
 
 import (

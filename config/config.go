@@ -18,7 +18,9 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	// Open the json file
-	f, _ := os.Open("config.json")
+	configfilepath := os.Getenv("GOPATH") + "/src/github.com/loitd/vabackend/config.json"
+	log.Println(configfilepath)
+	f, _ := os.Open(configfilepath)
 	defer f.Close()
 	// Parse json file into variables
 	decoder := json.NewDecoder(f)
