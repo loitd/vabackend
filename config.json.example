@@ -1,8 +1,11 @@
 {
-    "DATABASE_DRIVER": "goracle",
-    "DATABASE_URL": "VIRTUAL_ACCOUNT/VIRTUAL_ACCOUNT123@172.16.10.84:1521/DB84",
-    "LISTEN_PORT": "0.0.0.0:8080",
-    "WRITETIMEOUTINSECONDS": 15,
-    "READTIMEOUTINSECONDS": 15,
-    "IDLETIMEOUTINSECONDS": 60
+    "DATABASE_DRIVER"           : "goracle",
+    "DATABASE_URL"              : "username/password@db_ip:port/sid",
+    "LISTEN_PORT"               : "0.0.0.0:8080",
+    "WRITETIMEOUTINSECONDS"     : 15,
+    "READTIMEOUTINSECONDS"      : 15,
+    "IDLETIMEOUTINSECONDS"      : 60,
+    "JOBS_QUEUE_SIZE"           : 1000,
+    "ERRS_QUEUE_SIZE"           : 100,
+    "JOBS_WORKER_SIZE"          : 20
 }

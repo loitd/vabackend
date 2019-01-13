@@ -23,9 +23,10 @@ func main() {
 	log.Println("Config loaded. Database connection initializing ...")
 	// config load done, now open connection to database and pass the connection to the interface
 	models.InitDB(config)
-	log.Println("Database connection initialized. Starting webserver ...")
-	// Start server
+	log.Println("Database configured. Starting webserver ...")
+	// Start server in a separate routine
 	server.InitServer(config)
+
 	// importitf.ImportAccount(121)
 	// importitf.InsertAccount("900000011", "WOORIBANK", "1", "WRB000011", "3")
 

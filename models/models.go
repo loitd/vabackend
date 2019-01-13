@@ -1,10 +1,8 @@
 package models
 
 import (
-	"context"
 	"database/sql"
 	"log"
-	"time"
 
 	"github.com/loitd/vabackend/config"
 	_ "gopkg.in/goracle.v2"
@@ -23,15 +21,17 @@ func InitDB(cfg *config.Config) {
 		// log.Fatal(err)
 		log.Println(err) // continue for dev only. Should be Fatal in production mode
 	}
+	// Close database connection after using
 	defer db.Close()
-	// Create database connection with context
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err = db.PingContext(ctx)
-	if err != nil {
-		// log.Fatal(err)
-		log.Println(err) //should be Fatal in production mode
-	}
+	// Create database connection with context. Removed in v1.2 for faster startup
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+	// err = db.PingContext(ctx)
+	// if err != nil {
+	// 	// log.Fatal(err)
+	// 	log.Println(err) //should be Fatal in production mode
+	// }
+
 	// Pass the database connection to the interfaces (many interfaces need many assignments)
 	ImportItf = &DBConn{DB: db}
 }

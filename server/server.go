@@ -19,6 +19,7 @@ func InitServer(cfg *config.Config) {
 	// Routes consists of a path and a handler function
 	router.HandleFunc("/api/v1.0/importaccount", ImportAccountHandlerv10)
 	router.HandleFunc("/api/v1.2/importaccount", ImportAccountHandlerv12)
+	router.HandleFunc("/api/v1.2/importstatus", ImportStatusHandlerv12)
 	// Bind port and pass router in. New server with timeout and graceful shutdown from v1.2 (go > 1.8 only)
 	// define wait time flag and parse this flag after definition
 	var wait time.Duration
