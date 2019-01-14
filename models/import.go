@@ -9,41 +9,9 @@ import (
 	"os"
 	"strconv"
 	"sync"
-	"time"
 
 	config "github.com/loitd/vabackend/config"
 )
-
-// The data strcuture get from database
-type ImportBatch struct {
-	id                  int
-	bank_code           string
-	quantity            string
-	batch_code          string
-	file_name_root      string
-	parent_account_epay string
-}
-
-type ImportStatus struct {
-	NoOfImport  int "json:NoOfImport"
-	NoOfFail    int "json:NoOfFail"
-	TotalImport int "json:TotalImport"
-}
-
-var ImportStatusVar ImportStatus
-
-// each method returns errors in case something went wrong
-// Each method in this interface (Import) with attached parameter is dbconn - the DB Connection
-type ImportInterface interface {
-	GetImportBatchInfo(batchID int) (*ImportBatch, error)
-	InsertAccount(va_number string, bank_code string, batch_id int, batch_code string, parent_account_epay string) error
-	ImportAccount(batch_id int) error
-	ImportAccountLogic(filename string) error
-}
-
-// Make this interface global variable for application throughput. All package can access this interface
-// With accessing this interface -> can call all methods in this interface (with attached dbconn - and they dont have to care about dbconn)
-var ImportItf ImportInterface
 
 func (dbconn *DBConn) GetImportBatchInfo(batchID int) (*ImportBatch, error) {
 	// get import batch info based on batchID input
@@ -130,16 +98,17 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) {
 	log.Println("parseFile done!")
 }
 
-func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup) {
+func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib *ImportBatch) {
 	// read the channel for VA_NUMBER, this is range over channel
 	// This range iterates over each element as it’s received from queue.
 	// Because we CLOSED the channel above, the iteration terminates after receiving the 2 elements.
 	for vaNumber := range jobs {
 		// va_number := <-job
-		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s", id, vaNumber))
-		time.Sleep(1 * time.Second) //for demo
-		if id%5 == 0 {
-			errs <- fmt.Sprintf("%s | ORA 11G error while inserting", vaNumber)
+		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s|%s|%s|%s", id, vaNumber, ib.bank_code, ib.id, ib.batch_code))
+		// insert to database
+		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.id, ib.batch_code, ib.parent_account_epay)
+		if err != nil {
+			errs <- fmt.Sprintf("%s | %s", vaNumber, err.Error)
 		}
 	}
 	// Return done when ALL job finished
@@ -162,10 +131,17 @@ func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 // return
 // }
 
-func (dbconn *DBConn) ImportAccountLogic(filename string) error {
+func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
+	// Must connect to the database to get the information
+	// first get the file name
+	importbatch, err := ImportItf.GetImportBatchInfo(batch_id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	// startTime := time.Now()
 	cfg, _ := config.LoadConfig()
-	log.Println("importAccountLogic begin processing file: ", filename)
+	log.Println("importAccountLogic begin processing file: ", importbatch.file_name_root)
 	// define bufferred channel
 	jobs := make(chan string, cfg.JOBS_QUEUE_SIZE)
 	errs := make(chan string, cfg.ERRS_QUEUE_SIZE)
@@ -173,11 +149,11 @@ func (dbconn *DBConn) ImportAccountLogic(filename string) error {
 	var wg, wg2 sync.WaitGroup
 	// start new routine for read the file. ParseFile()
 	wg.Add(1)
-	go parseFile(filename, jobs, &wg)
+	go parseFile(importbatch.file_name_root, jobs, &wg)
 	// Create worker routines
 	for i := 1; i <= cfg.JOBS_WORKER_SIZE; i++ {
 		wg.Add(1)
-		go workerDB(i, jobs, errs, &wg)
+		go workerDB(i, jobs, errs, &wg, importbatch)
 	}
 	// Start routine for writting errors
 	wg2.Add(1)

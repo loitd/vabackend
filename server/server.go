@@ -10,7 +10,7 @@ import (
 	"time"
 
 	mux "github.com/gorilla/mux"
-	"github.com/loitd/vabackend/config"
+	config "github.com/loitd/vabackend/config"
 )
 
 func InitServer(cfg *config.Config) {

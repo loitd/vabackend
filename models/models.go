@@ -14,24 +14,56 @@ type DBConn struct {
 	DB *sql.DB
 }
 
+// The data strcuture get from database
+type ImportBatch struct {
+	id                  int
+	bank_code           string
+	quantity            string
+	batch_code          string
+	file_name_root      string
+	parent_account_epay string
+}
+
+type ImportStatus struct {
+	NoOfImport  int "json:NoOfImport"
+	NoOfFail    int "json:NoOfFail"
+	TotalImport int "json:TotalImport"
+}
+
+var ImportStatusVar ImportStatus
+
+// each method returns errors in case something went wrong
+// Each method in this interface (Import) with attached parameter is dbconn - the DB Connection
+type ImportInterface interface {
+	GetImportBatchInfo(batchID int) (*ImportBatch, error)
+	InsertAccount(va_number string, bank_code string, batch_id int, batch_code string, parent_account_epay string) error
+	ImportAccount(batch_id int) error
+	ImportAccountLogic(batch_id int) error
+}
+
+// Make this interface global variable for application throughput. All package can access this interface
+// With accessing this interface -> can call all methods in this interface (with attached dbconn - and they dont have to care about dbconn)
+var ImportItf ImportInterface
+
 func InitDB(cfg *config.Config) {
 	// Please remember that sql.Open only validate argument without creating connection. Ping/PingContext do that.
 	db, err := sql.Open(cfg.DATABASE_DRIVER, cfg.DATABASE_URL)
 	if err != nil {
-		// log.Fatal(err)
-		log.Println(err) // continue for dev only. Should be Fatal in production mode
+		log.Fatal(err)
+		// log.Println(err) // continue for dev only. Should be Fatal in production mode
 	}
-	// Close database connection after using
-	defer db.Close()
-	// Create database connection with context. Removed in v1.2 for faster startup
+	// Create database connection with context. Must in v1.2 for faster startup
 	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	// defer cancel()
-	// err = db.PingContext(ctx)
-	// if err != nil {
-	// 	// log.Fatal(err)
-	// 	log.Println(err) //should be Fatal in production mode
-	// }
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+		// log.Println(err) //should be Fatal in production mode
+	}
 
 	// Pass the database connection to the interfaces (many interfaces need many assignments)
 	ImportItf = &DBConn{DB: db}
+
+	// Close database connection after using
+	// defer db.Close()
 }

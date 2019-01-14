@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/loitd/vabackend/models"
 )
@@ -22,7 +21,7 @@ func ImportStatusHandlerv12(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
-	startTime := time.Now()
+	// startTime := time.Now()
 	query := r.URL.Query()
 	batch_id := query.Get("batch_id")
 	if len(batch_id) < 1 {
@@ -30,13 +29,15 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("WEGOT: ", batch_id)
-	w.Write([]byte("hello con de"))
+	// w.Write([]byte("hello con de"))
 	// models.ImportItf.ImportAccountLogic("fbk_vir_001_20181206_001.dat")
-	models.ImportItf.ImportAccountLogic("sample.dat")
+	go models.ImportItf.ImportAccountLogic(121)
+	// return for caller
+	w.Write([]byte("{result: called successfully}"))
 	// Calculate the time of processing
-	endTime := time.Now()
-	diff := endTime.Sub(startTime)
-	log.Println("total time taken ", diff.Seconds(), "seconds")
+	// endTime := time.Now()
+	// diff := endTime.Sub(startTime)
+	// log.Println("total time taken ", diff.Seconds(), "seconds")
 }
 
 func ImportAccountHandlerv10(w http.ResponseWriter, r *http.Request) {
