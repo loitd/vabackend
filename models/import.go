@@ -77,6 +77,11 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) {
 			log.Println("Its EOF!")
 			break
 		}
+		// capture any other errors
+		if err != nil {
+			log.Println("Reading imported file: ", err)
+			break
+		}
 		//ignore first line
 		if curline == 1 {
 			curline = curline + 1
