@@ -28,10 +28,15 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 		log.Println("Invalid batch_id")
 		return
 	}
+	batchid, err := strconv.Atoi(batch_id)
+	if err != nil {
+		log.Println("Invalid type of batch_id")
+		return
+	}
 	log.Println("WEGOT: ", batch_id)
 	// w.Write([]byte("hello con de"))
 	// models.ImportItf.ImportAccountLogic("fbk_vir_001_20181206_001.dat")
-	go models.ImportItf.ImportAccountLogic(121)
+	go models.ImportItf.ImportAccountLogic(batchid)
 	// return for caller
 	w.Write([]byte("{result: called successfully}"))
 	// Calculate the time of processing

@@ -1,0 +1,29 @@
+[Unit]
+Description=vabackend
+ConditionPathExists=/home/loitd/code/src/github.com/loitd/vabackend/vabackend
+After=network.target
+ 
+[Service]
+Type=simple
+User=loitd
+Group=loitd
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
+
+WorkingDirectory=/home/loitd/code/src/github.com/loitd/vabackend
+ExecStart=/home/loitd/code/src/github.com/loitd/vabackend/vabackend --name=foo
+
+# make sure log directory exists and owned by syslog
+#PermissionsStartOnly=true
+#ExecStartPre=/bin/mkdir -p /var/log/sleepservice
+#ExecStartPre=/bin/chown syslog:adm /var/log/sleepservice
+#ExecStartPre=/bin/chmod 755 /var/log/sleepservice
+#StandardOutput=syslog
+#StandardError=syslog
+#SyslogIdentifier=sleepservice
+ 
+[Install]
+WantedBy=multi-user.target
