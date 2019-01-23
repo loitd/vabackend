@@ -49,7 +49,7 @@ func (dbconn *DBConn) InsertAccount(va_number string, bank_code string, batch_id
 			(VA_NUMBER, VA_NAME, BANK_CODE, BATCH_ID, STATUS, CREATED_BY,      CREATED_AT, UPDATED_AT, BATCH_CODE, COPPY,PARENT_ACCOUNT_EP)
 	VALUES  (:1,        'EPAY',  :2,        :3,       0,      'Administrator', SYSDATE ,   SYSDATE,    :4,         0,    :5)`
 	// Execute the query now
-	_, err = dbconn.DB.Query(sql, va_number, bank_code, batch_id, batch_code, parent_account_epay)
+	_, err = dbconn.DB.Exec(sql, va_number, bank_code, batch_id, batch_code, parent_account_epay)
 	if err != nil {
 		log.Fatal(va_number, err)
 		config.LogFile("./fatal.log", fmt.Sprintf(":0-:1", va_number, err))
@@ -59,7 +59,27 @@ func (dbconn *DBConn) InsertAccount(va_number string, bank_code string, batch_id
 	return nil
 }
 
+func editFile(filename string) error {
+	f, err := os.OpenFile(filename, os.O_RDWR, 0644)
+	if err != nil {
+		log.Println("1.Error while modifying file", err)
+		return err
+	}
+	defer f.Close()
+	_, err = f.WriteAt([]byte{'#'}, 0)
+	if err != nil {
+		log.Println("2.Error while modifying file", err)
+		return err
+	}
+	return nil
+}
+
 func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) {
+	// modify the file first
+	err := editFile(filename)
+	if err != nil {
+		return
+	}
 	// read the file and push to channel
 	f, err := os.Open(filename)
 	if err != nil {
@@ -125,7 +145,7 @@ func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 	// write error only to file
 	// Start only 1 routine for this task
 	for err := range errs {
-		config.LogFile("fatal.log", err)
+		config.LogFile("/var/www/html/import.fatal.log", err)
 		ImportStatusVar.NoOfFail = ImportStatusVar.NoOfFail + 1
 	}
 	wg2.Done()

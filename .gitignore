@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.dat
 
 # Test binary, build with `go test -c`
 *.test
@@ -14,7 +15,5 @@
 #config
 config.json
 instantclient_12_1
+sample
 instantclient_12_1.tar.gz
-sample.dat
-fbk_vir_001_20181206_001.dat
-sample.dat
