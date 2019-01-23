@@ -22,7 +22,7 @@ func (dbconn *DBConn) GetImportBatchInfo(batchID int) (*ImportBatch, error) {
 		return nil, err
 	}
 	// now do Query
-	row := dbconn.DB.QueryRow("SELECT ID, BANK_CODE, QUANTITY, BATCH_CODE, FILE_NAME_ROOT, PARENT_ACCOUNT_EP FROM TBL_IMPORT_BATCH WHERE ID = :1", batchID)
+	row := dbconn.DB.QueryRow("SELECT ID, BANK_CODE, QUANTITY, BATCH_CODE, LINK_FILE_ORIGINAL, PARENT_ACCOUNT_EP FROM TBL_IMPORT_BATCH WHERE ID = :1", batchID)
 	// rows, err := dbconn.DB.Query("SELECT ID, BANK_CODE, QUANTITY, BATCH_CODE, FILE_NAME_ROOT, PARENT_ACCOUNT_EP FROM TBL_IMPORT_BATCH")
 	importbatch := &ImportBatch{}
 	err = row.Scan(&importbatch.id, &importbatch.bank_code, &importbatch.quantity, &importbatch.batch_code, &importbatch.file_name_root, &importbatch.parent_account_epay)
