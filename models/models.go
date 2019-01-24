@@ -25,9 +25,9 @@ type ImportBatch struct {
 }
 
 type ImportStatus struct {
-	NoOfImport  int "json:NoOfImport"
-	NoOfFail    int "json:NoOfFail"
-	TotalImport int "json:TotalImport"
+	NoOfImport  int "json:TotalSuccess"
+	NoOfFail    int "json:TotalError"
+	TotalImport int "json:TotalRecords"
 }
 
 var ImportStatusVar ImportStatus
