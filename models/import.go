@@ -51,7 +51,7 @@ func (dbconn *DBConn) InsertAccount(va_number string, bank_code string, batch_id
 	// Execute the query now
 	_, err = dbconn.DB.Exec(sql, va_number, bank_code, batch_id, batch_code, parent_account_epay)
 	if err != nil {
-		log.Fatal(va_number, err)
+		log.Println(va_number, err)
 		config.LogFile("./fatal.log", fmt.Sprintf(":0-:1", va_number, err))
 		return err
 	}
@@ -145,7 +145,7 @@ func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 	// write error only to file
 	// Start only 1 routine for this task
 	for err := range errs {
-		config.LogFile("/var/www/html/import.fatal.log", err)
+		config.LogFile("./fatal.log", err)
 		ImportStatusVar.NoOfFail = ImportStatusVar.NoOfFail + 1
 	}
 	wg2.Done()
