@@ -172,7 +172,7 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 		log.Println(err)
 		// update Return Status
 		ImportStatusVar.ResponseCode = 11
-		ImportStatusVar.Message = "GetImportBatchInfo failed: %s".format(err.Error())
+		ImportStatusVar.Message = fmt.Sprintf("GetImportBatchInfo failed: %s", err.Error())
 		// now return
 		return err
 	}
