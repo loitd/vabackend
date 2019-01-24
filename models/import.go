@@ -51,7 +51,7 @@ func (dbconn *DBConn) InsertAccount(va_number string, bank_code string, batch_id
 	_, err = dbconn.DB.Exec(sql, va_number, bank_code, batch_id, batch_code, parent_account_epay)
 	if err != nil {
 		log.Println(va_number, err)
-		config.LogFile("./fatal.log", fmt.Sprintf(":0-:1", va_number, err))
+		// config.LogFile("./fatal.log", fmt.Sprintf(":0-:1", va_number, err))
 		return err
 	}
 	log.Println("InsertAccount Done")
@@ -132,7 +132,7 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 		// insert to database
 		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.id, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
-			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error)
+			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error())
 			ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 		}
 		ImportStatusVar.TotalSuccess = ImportStatusVar.TotalSuccess + 1
@@ -142,13 +142,20 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 	log.Println(fmt.Sprintf("workerDB %d done!", id))
 }
 
+func (dbconn *DBConn) saveLogFileName(filename string) {
+	// save to database
+}
+
 func writeErr(errs chan string, wg2 *sync.WaitGroup) {
-	// write error only to file
+	// write errors only to file
+	// create the logs filename
+
 	// Start only 1 routine for this task
 	for err := range errs {
 		config.LogFile("./fatal.log", err)
 		// ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 	}
+	// Update log filename into database
 	wg2.Done()
 }
 
@@ -163,6 +170,10 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 	importbatch, err := ImportItf.GetImportBatchInfo(batch_id)
 	if err != nil {
 		log.Println(err)
+		// update Return Status
+		ImportStatusVar.ResponseCode = 11
+		ImportStatusVar.Message = "GetImportBatchInfo failed: ", err.Error()
+		// now return
 		return err
 	}
 	// startTime := time.Now()

@@ -34,7 +34,7 @@ func getStatus() ([]byte, error) {
 func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	// Reset counters for every new request
-	models.ResetResult()
+	models.Reset()
 	// check for request method is POST or GET
 	var bid string
 	switch r.Method {
@@ -61,12 +61,14 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 		log.Println("Invalid type of batch_id")
 		return
 	}
+	models.ImportBatchVar.id = bid
 	log.Println("WEGOT: ", bid)
 	// w.Write([]byte("hello con de"))
 	// models.ImportItf.ImportAccountLogic("fbk_vir_001_20181206_001.dat")
 	models.ImportItf.ImportAccountLogic(batchid)
 	// return for caller
 	// get result and return
+	log.Println("Begin getting status for responding ...")
 	output, err := getStatus()
 	if err != nil {
 		w.Write([]byte(err.Error()))

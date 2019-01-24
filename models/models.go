@@ -24,6 +24,8 @@ type ImportBatch struct {
 	parent_account_epay string
 }
 
+var ImportBatchVar ImportBatch
+
 type ImportStatus struct {
 	ResponseCode int    "json:ResponseCode"
 	Message      string "json:Message"
@@ -32,6 +34,7 @@ type ImportStatus struct {
 	TotalRecords int    "json:TotalRecords total records read from files"
 }
 
+// Store global status
 var ImportStatusVar ImportStatus
 
 // each method returns errors in case something went wrong
@@ -47,12 +50,14 @@ type ImportInterface interface {
 // With accessing this interface -> can call all methods in this interface (with attached dbconn - and they dont have to care about dbconn)
 var ImportItf ImportInterface
 
-func ResetResult() {
-	ImportStatusVar.ResponseCode = 0
+func Reset() {
+	ImportStatusVar.ResponseCode = 200
 	ImportStatusVar.Message = ""
 	ImportStatusVar.TotalSuccess = 0
 	ImportStatusVar.TotalError = 0
 	ImportStatusVar.TotalRecords = 0
+	//
+	ImportBatchVar.id = nil
 }
 
 func InitDB(cfg *config.Config) {
