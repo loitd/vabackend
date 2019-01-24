@@ -25,9 +25,11 @@ type ImportBatch struct {
 }
 
 type ImportStatus struct {
-	NoOfImport  int "json:TotalSuccess"
-	NoOfFail    int "json:TotalError"
-	TotalImport int "json:TotalRecords"
+	ResponseCode int    "json:ResponseCode"
+	Message      string "json:Message"
+	TotalSuccess int    "json:TotalSuccess"
+	TotalError   int    "json:TotalError"
+	TotalRecords int    "json:TotalRecords total records read from files"
 }
 
 var ImportStatusVar ImportStatus
@@ -44,6 +46,14 @@ type ImportInterface interface {
 // Make this interface global variable for application throughput. All package can access this interface
 // With accessing this interface -> can call all methods in this interface (with attached dbconn - and they dont have to care about dbconn)
 var ImportItf ImportInterface
+
+func ResetResult() {
+	ImportStatusVar.ResponseCode = 0
+	ImportStatusVar.Message = ""
+	ImportStatusVar.TotalSuccess = 0
+	ImportStatusVar.TotalError = 0
+	ImportStatusVar.TotalRecords = 0
+}
 
 func InitDB(cfg *config.Config) {
 	// Please remember that sql.Open only validate argument without creating connection. Ping/PingContext do that.

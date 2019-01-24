@@ -33,6 +33,8 @@ func getStatus() ([]byte, error) {
 
 func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+	// Reset counters for every new request
+	models.ResetResult()
 	// check for request method is POST or GET
 	var bid string
 	switch r.Method {

@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
 	"sync"
 
 	config "github.com/loitd/vabackend/config"
@@ -30,7 +29,7 @@ func (dbconn *DBConn) GetImportBatchInfo(batchID int) (*ImportBatch, error) {
 		return nil, err
 	}
 	// Update totalimport
-	ImportStatusVar.TotalImport, _ = strconv.Atoi(importbatch.quantity)
+	// ImportStatusVar.TotalRecords, _ = strconv.Atoi(importbatch.quantity)
 	// log.Println(*importbatch)
 	log.Println("Got file location: ", importbatch.file_name_root)
 	return importbatch, nil
@@ -112,7 +111,7 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) {
 		// Pushing to channel
 		jobs <- account_number
 		log.Println(fmt.Sprintf("Pushed %d - %s", curline, account_number))
-		ImportStatusVar.NoOfImport = curline
+		ImportStatusVar.TotalRecords = curline
 		// increase curline afterall
 		curline = curline + 1
 	}
@@ -134,7 +133,9 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.id, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
 			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error)
+			ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 		}
+		ImportStatusVar.TotalSuccess = ImportStatusVar.TotalSuccess + 1
 	}
 	// Return done when ALL job finished
 	wg.Done()
@@ -146,7 +147,7 @@ func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 	// Start only 1 routine for this task
 	for err := range errs {
 		config.LogFile("./fatal.log", err)
-		ImportStatusVar.NoOfFail = ImportStatusVar.NoOfFail + 1
+		// ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 	}
 	wg2.Done()
 }
