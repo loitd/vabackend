@@ -57,7 +57,7 @@ func Reset() {
 	ImportStatusVar.TotalError = 0
 	ImportStatusVar.TotalRecords = 0
 	//
-	ImportBatchVar.id = nil
+	ImportBatchVar.id = 0
 }
 
 func InitDB(cfg *config.Config) {
