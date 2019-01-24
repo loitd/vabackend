@@ -16,7 +16,7 @@ type DBConn struct {
 
 // The data strcuture get from database
 type ImportBatch struct {
-	id                  int
+	ID                  int
 	bank_code           string
 	quantity            string
 	batch_code          string
@@ -57,7 +57,7 @@ func Reset() {
 	ImportStatusVar.TotalError = 0
 	ImportStatusVar.TotalRecords = 0
 	//
-	ImportBatchVar.id = 0
+	ImportBatchVar.ID = 0
 }
 
 func InitDB(cfg *config.Config) {

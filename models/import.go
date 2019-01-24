@@ -24,7 +24,7 @@ func (dbconn *DBConn) GetImportBatchInfo(batchID int) (*ImportBatch, error) {
 	row := dbconn.DB.QueryRow("SELECT ID, BANK_CODE, QUANTITY, BATCH_CODE, LINK_FILE_ORIGINAL, PARENT_ACCOUNT_EP FROM TBL_IMPORT_BATCH WHERE ID = :1", batchID)
 	// rows, err := dbconn.DB.Query("SELECT ID, BANK_CODE, QUANTITY, BATCH_CODE, FILE_NAME_ROOT, PARENT_ACCOUNT_EP FROM TBL_IMPORT_BATCH")
 	importbatch := &ImportBatch{}
-	err = row.Scan(&importbatch.id, &importbatch.bank_code, &importbatch.quantity, &importbatch.batch_code, &importbatch.file_name_root, &importbatch.parent_account_epay)
+	err = row.Scan(&importbatch.ID, &importbatch.bank_code, &importbatch.quantity, &importbatch.batch_code, &importbatch.file_name_root, &importbatch.parent_account_epay)
 	if err != nil {
 		return nil, err
 	}
@@ -128,9 +128,9 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 	// Because we CLOSED the channel above, the iteration terminates after receiving the 2 elements.
 	for vaNumber := range jobs {
 		// va_number := <-job
-		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s|%s|%d|%s", id, vaNumber, ib.bank_code, ib.id, ib.batch_code))
+		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s|%s|%d|%s", id, vaNumber, ib.bank_code, ib.ID, ib.batch_code))
 		// insert to database
-		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.id, ib.batch_code, ib.parent_account_epay)
+		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.ID, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
 			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error())
 			ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1

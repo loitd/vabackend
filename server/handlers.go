@@ -61,7 +61,7 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 		log.Println("Invalid type of batch_id")
 		return
 	}
-	models.ImportBatchVar.id = bid
+	models.ImportBatchVar.ID = batchid
 	log.Println("WEGOT: ", bid)
 	// w.Write([]byte("hello con de"))
 	// models.ImportItf.ImportAccountLogic("fbk_vir_001_20181206_001.dat")
