@@ -129,11 +129,11 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 	// Because we CLOSED the channel above, the iteration terminates after receiving the 2 elements.
 	for vaNumber := range jobs {
 		// va_number := <-job
-		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s|%s|%s|%s", id, vaNumber, ib.bank_code, ib.id, ib.batch_code))
+		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s|%s|%d|%s", id, vaNumber, ib.bank_code, ib.id, ib.batch_code))
 		// insert to database
 		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.id, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
-			errs <- fmt.Sprintf("%s | %s", vaNumber, err.Error)
+			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error)
 		}
 	}
 	// Return done when ALL job finished
