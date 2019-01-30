@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	config "github.com/loitd/vabackend/config"
 )
@@ -127,7 +128,7 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) error {
 		jobs <- account_number
 		log.Println(fmt.Sprintf("Pushed %d - %s", curline, account_number))
 		// Update to TotalRecord. Not count first line
-		ImportStatusVar.TotalRecords = curline - 1
+		ImportStatusVar.TotalRecords = curline
 		// increase curline afterall
 		curline = curline + 1
 	}
@@ -151,7 +152,7 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.ID, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
 			// in case of errors, push to errs channel and increase TotalError with 1
-			errs <- fmt.Sprintf("(workerDB-%d) BatchID: %s | VANumber: %s | Msg: %s", id, ib.ID, vaNumber, err.Error())
+			errs <- fmt.Sprintf("(workerDB-%d) BatchID: %d | BatchCode: %s | VANumber: %s | Msg: %s", id, ib.ID, ib.batch_code, vaNumber, err.Error())
 			// Increase TotalErrors with 1
 			ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 			continue
@@ -173,10 +174,14 @@ func (dbconn *DBConn) saveLogFileName(filename string) {
 func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 	// write errors only to file
 	// create the logs filename
-
+	t := time.Now()
+	filename := fmt.Sprintf("%d.%s.%d-fatal.log", t.Year(), t.Month(), t.Day())
+	filepath := "/var/www/html/vabackend"
+	fullfilepath := fmt.Sprintf("%s/%s", filepath, filename)
+	log.Println("Begin writting log file to:", fullfilepath)
 	// Start only 1 routine for this task
 	for err := range errs {
-		config.LogFile("./fatal.log", err)
+		config.LogFile(fullfilepath, err)
 		// ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 	}
 	// Update log filename into database

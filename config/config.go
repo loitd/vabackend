@@ -44,7 +44,7 @@ func LogFile(filename string, msg string) error {
 	// If the file doesn't exist, create it, or append to the file
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error while LogFile.Open: ", err.Error())
 		return err
 	}
 	defer f.Close()
@@ -53,7 +53,7 @@ func LogFile(filename string, msg string) error {
 	fmtmsg := fmt.Sprintf("[%s] %s\r\n", startTime, msg)
 	_, err = f.WriteString(fmtmsg)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error while LogFile.Write", err.Error())
 		return err
 	}
 	f.Close()
