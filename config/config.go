@@ -50,7 +50,7 @@ func LogFile(filename string, msg string) error {
 	defer f.Close()
 	//
 	startTime := time.Now()
-	fmtmsg := fmt.Sprintf("[%s] %s\r\n", startTime, msg)
+	fmtmsg := fmt.Sprintf("[%d-%s-%d %d:%d:%d] %s\r\n", startTime.Year(), startTime.Month(), startTime.Day(), startTime.Hour(), startTime.Minute(), startTime.Second(), msg)
 	_, err = f.WriteString(fmtmsg)
 	if err != nil {
 		log.Println("Error while LogFile.Write", err.Error())
