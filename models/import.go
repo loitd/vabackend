@@ -59,6 +59,30 @@ func (dbconn *DBConn) InsertAccount(va_number string, bank_code string, batch_id
 	return nil
 }
 
+func (dbconn *DBConn) UpdateBatchLinks(bid int, filepath string, filename string) error {
+	// Ping first
+	err := dbconn.DB.Ping()
+	if err != nil {
+		log.Println("DBPing: ", err)
+		return err
+	}
+	// now do Query
+	// Insert account into TBL_VA_IMPORT
+	sql := `UPDATE TBL_IMPORT_BATCH
+			SET LINK_FILE_ERROR = :1,
+			FILE_ERROR = :2
+			WHERE ID = :3`
+	// Execute the query now
+	_, err = dbconn.DB.Exec(sql, filepath, filename, bid)
+	if err != nil {
+		log.Println("UpdateBatchLinks: ", err)
+		// config.LogFile("./fatal.log", fmt.Sprintf(":0-:1", va_number, err))
+		return err
+	}
+	log.Println("InsertAccount Done")
+	return nil
+}
+
 func editFile(filename string) error {
 	f, err := os.OpenFile(filename, os.O_RDWR, 0644)
 	if err != nil {
@@ -171,7 +195,7 @@ func (dbconn *DBConn) saveLogFileName(filename string) {
 	// save to database
 }
 
-func writeErr(errs chan string, wg2 *sync.WaitGroup) {
+func writeErr(errs chan string, wg2 *sync.WaitGroup, ib *ImportBatch) {
 	// write errors only to file
 	// create the logs filename
 	t := time.Now()
@@ -185,6 +209,8 @@ func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 		// ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 	}
 	// Update log filename into database
+	ImportItf.UpdateBatchLinks(ib.ID, filepath, filename)
+	// Mark DONE
 	wg2.Done()
 }
 
@@ -224,8 +250,8 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 	}
 	// Start routine for writting errors
 	wg2.Add(1)
-	go writeErr(errs, &wg2)
-	// Now wait all of them.
+	go writeErr(errs, &wg2, importbatch)
+	// Now wait all of them. till finished.
 	wg.Wait()
 	log.Println("All jobs done.")
 	// When all finihed, then close the result channel
@@ -233,10 +259,6 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 	// Now wait for log errs tobe done
 	wg2.Wait()
 	log.Println("All log done")
-	// Calculate the time of processing
-	// endTime := time.Now()
-	// diff := endTime.Sub(startTime)
-	// log.Println("total time taken ", diff.Seconds(), "seconds")
 	return nil
 }
 

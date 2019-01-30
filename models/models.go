@@ -42,6 +42,7 @@ var ImportStatusVar ImportStatus
 type ImportInterface interface {
 	GetImportBatchInfo(batchID int) (*ImportBatch, error)
 	InsertAccount(va_number string, bank_code string, batch_id int, batch_code string, parent_account_epay string) error
+	UpdateBatchLinks(bid int, filepath string, filename string) error
 	ImportAccount(batch_id int) error
 	ImportAccountLogic(batch_id int) error
 }
