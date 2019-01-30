@@ -77,12 +77,27 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) error {
 	// modify the file first
 	err := editFile(filename)
 	if err != nil {
+		ImportStatusVar.ResponseCode = 11
+		ImportStatusVar.Message = err.Error()
+		// Notify waitgroup its done
+		wg.Done()
+		// Must close jobs channel
+		close(jobs)
+		log.Println("parseFile done with error!")
 		return err
 	}
 	// read the file and push to channel
 	f, err := os.Open(filename)
 	if err != nil {
 		log.Println(err)
+		ImportStatusVar.ResponseCode = 11
+		ImportStatusVar.Message = err.Error()
+		// Notify waitgroup its done
+		wg.Done()
+		// Must close jobs channel
+		close(jobs)
+		log.Println("parseFile done with error!")
+		return err
 	}
 	defer f.Close()
 	reader := csv.NewReader(f)
@@ -195,13 +210,7 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 	// start new routine for read the file. ParseFile()
 	wg.Add(1)
 	// go parseFile(importbatch.file_name_root, jobs, &wg)
-	err = parseFile(importbatch.file_name_root, jobs, &wg)
-	if err != nil {
-		// write back to return value
-		ImportStatusVar.ResponseCode = 11
-		ImportStatusVar.Message = err.Error()
-		return err
-	}
+	go parseFile(importbatch.file_name_root, jobs, &wg)
 	// Create worker routines
 	for i := 1; i <= cfg.JOBS_WORKER_SIZE; i++ {
 		wg.Add(1)
