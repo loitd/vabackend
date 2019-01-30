@@ -176,7 +176,7 @@ func writeErr(errs chan string, wg2 *sync.WaitGroup) {
 
 	// Start only 1 routine for this task
 	for err := range errs {
-		config.LogFile("./fatal.log", err
+		config.LogFile("./fatal.log", err)
 		// ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 	}
 	// Update log filename into database
