@@ -193,7 +193,7 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 	// define a waitgroup to wait for all workers to finish his job
 	var wg, wg2 sync.WaitGroup
 	// start new routine for read the file. ParseFile()
-	// wg.Add(1)
+	wg.Add(1)
 	// go parseFile(importbatch.file_name_root, jobs, &wg)
 	err = parseFile(importbatch.file_name_root, jobs, &wg)
 	if err != nil {
