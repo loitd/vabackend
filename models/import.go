@@ -79,7 +79,7 @@ func (dbconn *DBConn) UpdateBatchLinks(bid int, filepath string, filename string
 		// config.LogFile("./fatal.log", fmt.Sprintf(":0-:1", va_number, err))
 		return err
 	}
-	log.Println("InsertAccount Done")
+	log.Println("UpdateBatchLinks Done")
 	return nil
 }
 
