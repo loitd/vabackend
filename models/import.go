@@ -151,7 +151,7 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.ID, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
 			// in case of errors, push to errs channel and increase TotalError with 1
-			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error())
+			errs <- fmt.Sprintf("(workerDB-%d) BatchID: %s | VANumber: %s | Msg: %s", id, ib.ID, vaNumber, err.Error())
 			// Increase TotalErrors with 1
 			ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
 			continue
