@@ -7,6 +7,7 @@ package main
 
 import (
 	"log"
+	"os/user"
 
 	"github.com/loitd/vabackend/config"
 	"github.com/loitd/vabackend/models"
@@ -14,6 +15,8 @@ import (
 )
 
 func main() {
+	usr, _ := user.Current()
+	log.Println("Running under user", usr.Username)
 	// first load config file
 	config, err := config.LoadConfig()
 	if err != nil {

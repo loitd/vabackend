@@ -32,6 +32,8 @@ func getStatus() ([]byte, error) {
 }
 
 func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
+	log.Println("-------------------------------------NEW**********************************************")
+	// log.Println("Running under user:", user.Current())
 	startTime := time.Now()
 	// Reset counters for every new request
 	models.Reset()
