@@ -82,7 +82,7 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		w.Write([]byte(err.Error()))
 	} else {
-		log.Println(output)
+		log.Println(string(output))
 		w.Write(output)
 	}
 	// w.Write([]byte("{result: called successfully}"))
