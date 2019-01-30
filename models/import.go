@@ -126,7 +126,8 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) error {
 		// Pushing to channel
 		jobs <- account_number
 		log.Println(fmt.Sprintf("Pushed %d - %s", curline, account_number))
-		ImportStatusVar.TotalRecords = curline
+		// Update to TotalRecord. Not count first line
+		ImportStatusVar.TotalRecords = curline - 1
 		// increase curline afterall
 		curline = curline + 1
 	}
