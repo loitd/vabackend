@@ -12,6 +12,7 @@ type Config struct {
 	DATABASE_DRIVER       string
 	DATABASE_URL          string
 	LISTEN_PORT           string
+	RESULT_FILEPATH       string
 	WRITETIMEOUTINSECONDS time.Duration
 	READTIMEOUTINSECONDS  time.Duration
 	IDLETIMEOUTINSECONDS  time.Duration
