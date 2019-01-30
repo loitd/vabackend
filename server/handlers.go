@@ -79,8 +79,10 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 	log.Println("Begin getting status for responding ...")
 	output, err := getStatus()
 	if err != nil {
+		log.Println(err.Error())
 		w.Write([]byte(err.Error()))
 	} else {
+		log.Println(output)
 		w.Write(output)
 	}
 	// w.Write([]byte("{result: called successfully}"))
