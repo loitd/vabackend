@@ -73,11 +73,11 @@ func editFile(filename string) error {
 	return nil
 }
 
-func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) {
+func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) error {
 	// modify the file first
 	err := editFile(filename)
 	if err != nil {
-		return
+		return err
 	}
 	// read the file and push to channel
 	f, err := os.Open(filename)
@@ -120,6 +120,8 @@ func parseFile(filename string, jobs chan string, wg *sync.WaitGroup) {
 	// Must close jobs channel
 	close(jobs)
 	log.Println("parseFile done!")
+	// return nil
+	return nil
 }
 
 func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib *ImportBatch) {
@@ -129,13 +131,19 @@ func workerDB(id int, jobs chan string, errs chan string, wg *sync.WaitGroup, ib
 	for vaNumber := range jobs {
 		// va_number := <-job
 		log.Println(fmt.Sprintf("workerDB %d processing va_number: %s|%s|%d|%s", id, vaNumber, ib.bank_code, ib.ID, ib.batch_code))
-		// insert to database
+		// insert to database new account
 		err := ImportItf.InsertAccount(vaNumber, ib.bank_code, ib.ID, ib.batch_code, ib.parent_account_epay)
 		if err != nil {
+			// in case of errors, push to errs channel and increase TotalError with 1
 			errs <- fmt.Sprintf("workerDB %d: %s | %s", id, vaNumber, err.Error())
+			// Increase TotalErrors with 1
 			ImportStatusVar.TotalError = ImportStatusVar.TotalError + 1
+			continue
+		} else {
+			// No error => increase TotalSuccess with 1
+			ImportStatusVar.TotalSuccess = ImportStatusVar.TotalSuccess + 1
+			continue
 		}
-		ImportStatusVar.TotalSuccess = ImportStatusVar.TotalSuccess + 1
 	}
 	// Return done when ALL job finished
 	wg.Done()
@@ -185,8 +193,15 @@ func (dbconn *DBConn) ImportAccountLogic(batch_id int) error {
 	// define a waitgroup to wait for all workers to finish his job
 	var wg, wg2 sync.WaitGroup
 	// start new routine for read the file. ParseFile()
-	wg.Add(1)
-	go parseFile(importbatch.file_name_root, jobs, &wg)
+	// wg.Add(1)
+	// go parseFile(importbatch.file_name_root, jobs, &wg)
+	err = parseFile(importbatch.file_name_root, jobs, &wg)
+	if err != nil {
+		// write back to return value
+		ImportStatusVar.ResponseCode = 11
+		ImportStatusVar.Message = err.Error()
+		return err
+	}
 	// Create worker routines
 	for i := 1; i <= cfg.JOBS_WORKER_SIZE; i++ {
 		wg.Add(1)

@@ -65,7 +65,13 @@ func ImportAccountHandlerv12(w http.ResponseWriter, r *http.Request) {
 	log.Println("WEGOT: ", bid)
 	// w.Write([]byte("hello con de"))
 	// models.ImportItf.ImportAccountLogic("fbk_vir_001_20181206_001.dat")
-	models.ImportItf.ImportAccountLogic(batchid)
+	_ = models.ImportItf.ImportAccountLogic(batchid)
+	// if err != nil {
+	// // something went wrong while preparing to import
+	// // invalid files, database
+	// w.Write([]byte(err.Error()))
+	// return
+	// }
 	// return for caller
 	// get result and return
 	log.Println("Begin getting status for responding ...")
